@@ -35,6 +35,7 @@ Flow {
     property bool show_leave: true
     property bool show_suspend: false
     property bool show_hibernate: false
+    property bool confirm_sleep: true
     property int visibleButtons: 2
     property int orientation: Qt.Vertical
 
@@ -100,6 +101,7 @@ Flow {
         show_leave = plasmoid.readConfig("show_leave");
         show_suspend = plasmoid.readConfig("show_suspend");
         show_hibernate = plasmoid.readConfig("show_hibernate");
+        confirm_sleep = plasmoid.readConfig("confirm_sleep");
 
         visibleButtons = show_lock+show_switchUser+show_leave+show_suspend+show_hibernate;
 
@@ -210,14 +212,14 @@ Flow {
     property QueryDialog sleepDialog
 
     function clickHandler(what) {
-        if (what == "suspendToDisk") {
+        if (what == "suspendToDisk" && confirm_sleep) {
             if (!hibernateDialog) {
                 hibernateDialog = hibernateDialogComponent.createObject(lockout);
             }
 
             hibernateDialog.open();
 
-        } else if (what == "suspendToRam") {
+        } else if (what == "suspendToRam" && confirm_sleep) {
             if (!sleepDialog) {
                 sleepDialog = sleepDialogComponent.createObject(lockout);
             }

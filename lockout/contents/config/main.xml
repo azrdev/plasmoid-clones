@@ -21,6 +21,9 @@
     <entry name="show_suspend" type="Bool">
       <default>false</default>
     </entry>
+    <entry name="confirm_sleep" type="Bool">
+      <default>true</default>
+    </entry>
   </group>
 
 </kcfg>
