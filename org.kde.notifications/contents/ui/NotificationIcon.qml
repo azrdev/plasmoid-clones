@@ -144,10 +144,17 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                if (notificationsApplet.totalCount > 0) {
-                    plasmoid.togglePopup()
+                if (mouse.button == Qt.MiddleButton) {
+                    //XXX
+                    notificationsLoader.notificationsModel.clear();
                 } else {
-                    plasmoid.hidePopup()
+
+                    if (notificationsApplet.totalCount > 0) {
+                        plasmoid.togglePopup()
+                    } else {
+                        plasmoid.hidePopup()
+                    }
+
                 }
             }
         }
