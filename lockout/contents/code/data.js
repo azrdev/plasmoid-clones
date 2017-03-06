@@ -2,7 +2,8 @@ var data = [{
     icon: "system-lock-screen",
     operation: "lockScreen",
     tooltip_mainText: i18n("Lock"),
-    tooltip_subText: i18n("Lock the screen")
+    tooltip_subText: i18n("Lock the screen"),
+    requires: "LockScreen"
 }, {
     icon: "system-switch-user",
     operation: "switchUser",
@@ -17,10 +18,12 @@ var data = [{
     icon: "system-suspend",
     operation: "suspendToRam",
     tooltip_mainText: i18n("Suspend"),
-    tooltip_subText: i18n("Sleep (suspend to RAM)")
+    tooltip_subText: i18n("Sleep (suspend to RAM)"),
+    requires: "Suspend"
 }, {
     icon: "system-suspend-hibernate",
     operation: "suspendToDisk",
     tooltip_mainText: i18n("Hibernate"),
-    tooltip_subText: i18n("Hibernate (suspend to disk)")
+    tooltip_subText: i18n("Hibernate (suspend to disk)"),
+    requires: "Hibernate"
 }]

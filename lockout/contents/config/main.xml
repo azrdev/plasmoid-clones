@@ -6,23 +6,25 @@
   <kcfgfile name=""/>
 
   <group name="General">
-    <entry name="show_leave" type="Bool">
+    <entry name="show_requestShutDown" type="Bool">
+      <label>Show an option to shut down the system.</label>
       <default>true</default>
     </entry>
-    <entry name="show_lock" type="Bool">
+    <entry name="show_lockScreen" type="Bool">
+      <label>Show an option to lock the system.</label>
       <default>true</default>
     </entry>
     <entry name="show_switchUser" type="Bool">
+      <label>Show an option to switch user.</label>
       <default>false</default>
     </entry>
-    <entry name="show_hibernate" type="Bool">
+    <entry name="show_suspendToDisk" type="Bool">
+      <label>Show an option to suspend the system to disk (hibernate).</label>
       <default>false</default>
     </entry>
-    <entry name="show_suspend" type="Bool">
+    <entry name="show_suspendToRam" type="Bool">
+      <label>Show an option to suspend the system suspend.</label>
       <default>false</default>
-    </entry>
-    <entry name="confirm_sleep" type="Bool">
-      <default>true</default>
     </entry>
   </group>
 

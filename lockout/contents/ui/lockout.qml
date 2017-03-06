@@ -17,114 +17,65 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 1.1
-import org.kde.plasma.core 0.1 as PlasmaCore
-import org.kde.plasma.components 0.1
-import org.kde.qtextracomponents 0.1
+import QtQuick 2.0
+import QtQuick.Layouts 1.0
+import org.kde.plasma.plasmoid 2.0
+import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 2.0
+import org.kde.kquickcontrolsaddons 2.0
 import "data.js" as Data
 
 Flow {
     id: lockout
-    property int minimumWidth
-    property int minimumHeight
+    Layout.minimumWidth: {
+        if (plasmoid.formFactor === PlasmaCore.Types.Vertical) {
+            return 0
+        } else if (plasmoid.formFactor === PlasmaCore.Types.Horizontal) {
+            return height < minButtonSize * visibleButtons ? height * visibleButtons : height / visibleButtons - 1;
+        } else {
+            return width > height ? minButtonSize * visibleButtons : minButtonSize
+        }
+    }
+    Layout.minimumHeight: {
+        if (plasmoid.formFactor === PlasmaCore.Types.Vertical) {
+            return width >= minButtonSize * visibleButtons ? width / visibleButtons - 1 : width * visibleButtons
+        } else if (plasmoid.formFactor === PlasmaCore.Types.Horizontal) {
+            return 0
+        } else {
+            return width > height ? minButtonSize : minButtonSize * visibleButtons
+        }
+    }
 
-    property int minButtonSize: 16
+    Layout.preferredWidth: Layout.minimumWidth
+    Layout.preferredHeight: Layout.minimumHeight
 
-    property bool show_lock: true
-    property bool show_switchUser: false
-    property bool show_leave: true
-    property bool show_suspend: false
-    property bool show_hibernate: false
-    property bool confirm_sleep: true
-    property int visibleButtons: 2
-    property int orientation: Qt.Vertical
+    readonly property int minButtonSize: units.iconSizes.small
 
-    flow: orientation==Qt.Vertical ? Flow.TopToBottom : Flow.LeftToRight
+    Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
+    readonly property int visibleButtons: {
+        var count = 0
+        for (var i = 0, j = items.count; i < j; ++i) {
+            if (items.itemAt(i).visible) {
+                ++count
+            }
+        }
+        return count
+    }
 
-    onWidthChanged: checkLayout();
-    onHeightChanged: checkLayout();
+    flow: {
+        if ((plasmoid.formFactor === PlasmaCore.Types.Vertical && width >= minButtonSize * visibleButtons) ||
+            (plasmoid.formFactor === PlasmaCore.Types.Horizontal && height < minButtonSize * visibleButtons) ||
+            (width > height)) {
+            return Flow.LeftToRight // horizontal
+        } else {
+            return Flow.TopToBottom // vertical
+        }
+    }
 
     PlasmaCore.DataSource {
         id: dataEngine
         engine: "powermanagement"
-        connectedSources: ["PowerDevil"]
-    }
-
-    Component.onCompleted: {
-        plasmoid.aspectRatioMode = IgnoreAspectRatio;
-        plasmoid.addEventListener('ConfigChanged', configChanged);
-    }
-
-    function checkLayout() {
-        switch(plasmoid.formFactor) {
-        case Vertical:
-            if (width >= minButtonSize*visibleButtons) {
-                orientation = Qt.Horizontal;
-                minimumHeight = width/visibleButtons - 1;
-                plasmoid.setPreferredSize(width, width/visibleButtons);
-            } else {
-                orientation = Qt.Vertical;
-                minimumHeight = width*visibleButtons;
-                plasmoid.setPreferredSize(width, width*visibleButtons);
-            }
-            break;
-
-        case Horizontal:
-            if (height < minButtonSize*visibleButtons) {
-                orientation = Qt.Horizontal;
-                minimumWidth = height*visibleButtons;
-                plasmoid.setPreferredSize(height*visibleButtons, height);
-            } else {
-                orientation = Qt.Vertical;
-                minimumWidth = height/visibleButtons - 1;
-                plasmoid.setPreferredSize(height/visibleButtons, height);
-            }
-            break;
-
-        default:
-            if (width > height) {
-                orientation = Qt.Horizontal;
-                minimumWidth = minButtonSize*visibleButtons;
-                minimumHeight = minButtonSize;
-            } else {
-                orientation = Qt.Vertical;
-                minimumWidth = minButtonSize;
-                minimumHeight = minButtonSize*visibleButtons;
-            }
-            break;
-        }
-    }
-
-    function configChanged() {
-        show_lock = plasmoid.readConfig("show_lock");
-        show_switchUser = plasmoid.readConfig("show_switchUser");
-        show_leave = plasmoid.readConfig("show_leave");
-        show_suspend = plasmoid.readConfig("show_suspend");
-        show_hibernate = plasmoid.readConfig("show_hibernate");
-        confirm_sleep = plasmoid.readConfig("confirm_sleep");
-
-        visibleButtons = show_lock+show_switchUser+show_leave+show_suspend+show_hibernate;
-
-        showModel.get(0).show = show_lock;
-        showModel.get(1).show = show_switchUser;
-        showModel.get(2).show = show_leave;
-        showModel.get(3).show = show_suspend;
-        showModel.get(4).show = show_hibernate;
-
-        checkLayout();
-    }
-
-    // model for setting whether an icon is shown
-    // this cannot be put in data.js because the the variables need to be
-    // notifiable for delegates to instantly respond to config changes
-    ListModel {
-        id: showModel
-        // defaults:
-        ListElement { show: true } // lock
-        ListElement { show: false} // switch user
-        ListElement { show: true } // leave
-        ListElement { show: false} // suspend
-        ListElement { show: false} // hibernate
+        connectedSources: ["PowerDevil", "Sleep States"]
     }
 
     Repeater {
@@ -137,44 +88,30 @@ Flow {
 
         delegate: Item {
             id: iconDelegate
-            visible: showModel.get(index).show
+            visible: plasmoid.configuration["show_" + modelData.operation] && (!modelData.hasOwnProperty("requires") || dataEngine.data["Sleep States"][modelData.requires])
             width: items.itemWidth
             height: items.itemHeight
 
-            
-            QIconItem {
+            PlasmaCore.IconItem {
                 id: iconButton
                 width: items.iconSize
                 height: items.iconSize
                 anchors.centerIn: parent
-                icon: QIcon(modelData.icon)
+                source: modelData.icon
                 scale: mouseArea.pressed ? 0.9 : 1
-                
-                QIconItem {
-                    id: activeIcon
-                    opacity: mouseArea.containsMouse ? 1 : 0
-                    anchors.fill: iconButton
-                    icon: QIcon(modelData.icon)
-                    state: QIconItem.ActiveState
-                    Behavior on opacity {
-                        NumberAnimation {
-                            duration: 250
-                            easing.type: Easing.InOutQuad
-                        }
-                    }
-                }
+                active: mouseArea.containsMouse
 
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onReleased: clickHandler(modelData.operation)
+                    onReleased: clickHandler(modelData.operation, this)
 
-                    PlasmaCore.ToolTip {
-                        target: mouseArea
+                    PlasmaCore.ToolTipArea {
+                        anchors.fill: parent
                         mainText: modelData.tooltip_mainText
                         subText: modelData.tooltip_subText
-                        image: modelData.icon
+                        icon: modelData.icon
                     }
                 }
             } 
@@ -187,6 +124,7 @@ Flow {
             titleIcon: "system-suspend-hibernate"
             titleText: i18n("Hibernate")
             message: i18n("Do you want to suspend to disk (hibernate)?")
+            location: plasmoid.location
 
             acceptButtonText: i18n("Yes")
             rejectButtonText: i18n("No")
@@ -202,6 +140,7 @@ Flow {
             titleIcon: "system-suspend"
             titleText: i18n("Suspend")
             message: i18n("Do you want to suspend to RAM (sleep)?")
+            location: plasmoid.location
 
             acceptButtonText: i18n("Yes")
             rejectButtonText: i18n("No")
@@ -211,19 +150,19 @@ Flow {
     }
     property QueryDialog sleepDialog
 
-    function clickHandler(what) {
-        if (what == "suspendToDisk" && confirm_sleep) {
+    function clickHandler(what, button) {
+        if (what == "suspendToDisk") {
             if (!hibernateDialog) {
                 hibernateDialog = hibernateDialogComponent.createObject(lockout);
             }
-
+            hibernateDialog.visualParent = button
             hibernateDialog.open();
 
-        } else if (what == "suspendToRam" && confirm_sleep) {
+        } else if (what == "suspendToRam") {
             if (!sleepDialog) {
                 sleepDialog = sleepDialogComponent.createObject(lockout);
             }
-
+            sleepDialog.visualParent = button
             sleepDialog.open();
 
         } else {
