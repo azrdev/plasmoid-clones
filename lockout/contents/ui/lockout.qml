@@ -150,20 +150,30 @@ Flow {
     }
     property QueryDialog sleepDialog
 
+    property bool confirm_sleep : true
+
     function clickHandler(what, button) {
         if (what == "suspendToDisk") {
             if (!hibernateDialog) {
                 hibernateDialog = hibernateDialogComponent.createObject(lockout);
             }
             hibernateDialog.visualParent = button
-            hibernateDialog.open();
+            if (confirm_sleep) {
+                hibernateDialog.open();
+            } else {
+                hibernateDialog.accept();
+            }
 
         } else if (what == "suspendToRam") {
             if (!sleepDialog) {
                 sleepDialog = sleepDialogComponent.createObject(lockout);
             }
             sleepDialog.visualParent = button
-            sleepDialog.open();
+            if (confirm_sleep) {
+                sleepDialog.open();
+            } else {
+                sleepDialog.accept();
+            }
 
         } else {
             performOperation(what);

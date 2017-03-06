@@ -26,6 +26,10 @@
       <label>Show an option to suspend the system suspend.</label>
       <default>false</default>
     </entry>
+    <entry name="confirm_sleep" type="Bool">
+      <label>Ask for user confirmation before suspending or hibernating the system.</label>
+      <default>true</default>
+    </entry>
   </group>
 
 </kcfg>

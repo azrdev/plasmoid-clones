@@ -38,6 +38,7 @@ Item {
     property alias cfg_show_switchUser: switchUser.checked
     property alias cfg_show_suspendToDisk: hibernate.checked
     property alias cfg_show_suspendToRam: sleep.checked
+    property alias confirm_sleep: confirm_sleep.checked
 
     readonly property bool canLockScreen: dataEngine.data["Sleep States"].LockScreen
     readonly property bool canSuspend: dataEngine.data["Sleep States"].Suspend
@@ -88,6 +89,10 @@ Item {
             id: sleep
             text: i18n("Suspend")
             enabled: iconsPage.canSuspend && (checkedOptions > 1 || !checked)
+        }
+        QtControls.CheckBox {
+            id: confirm_sleep
+            text: i18n("Confirm Sleep")
         }
     }
 }
