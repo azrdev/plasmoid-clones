@@ -4,6 +4,10 @@
             {
                 "Email": "viranch.mehta@gmail.com",
                 "Name": "Viranch Mehta"
+            },
+            {
+                "Email": "azrdev@qrdn.de",
+                "Name": "Jonathan Biegert"
             }
         ],
         "Category": "System Information",
@@ -88,7 +92,7 @@
             "desktop"
         ],
         "Icon": "system-shutdown",
-        "Id": "org.kde.plasma.lock_logout",
+        "Id": "de.qrdn.lock_logout",
         "License": "LGPL",
         "Name": "Lock/Logout",
         "Name[af]": "Sluit/Teken af",
@@ -176,7 +180,7 @@
             "Plasma/Applet"
         ],
         "Version": "1.0",
-        "Website": "http://plasma.kde.org/"
+        "Website": "https://github.com/azrdev/plasmoid-clones"
     },
     "Keywords": "Lock;Logout;Sleep;Hibernate;Switch User;",
     "Keywords[bs]": "Zaključavanje;Odjava;Spavanje;Hibernacija;Promjena korisnika;",
